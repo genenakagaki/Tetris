@@ -40,7 +40,6 @@ function Tetris() {
   }
 
   function lineIsComplete(y) {
-    console.log(blockList[y].length);
     return blockList[y].length === width;
   }
 
@@ -159,6 +158,9 @@ function Tetris() {
       pause();
     }
     
+    if (key === 32) { // Space
+      shape.moveToBottom();
+    }
     if (key === 81) { // Q
       shape.turnLeft();
     }

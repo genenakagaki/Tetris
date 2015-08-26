@@ -37,8 +37,8 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   // create blocks in model space and put into blockList
   function createBlockList() {
     for (var blockIndex = 0; blockIndex < SHAPE_BLOCK_COUNT; blockIndex++) {
-      var xBlock = xShapeModel[position][blockIndex];
-      var yBlock = yShapeModel[position][blockIndex];
+      var xBlock = xShapeModel[position][blockIndex] + x;
+      var yBlock = yShapeModel[position][blockIndex] + y;
 
       blockList[blockIndex] = new Block(xBlock, yBlock, gameWidth, gameHeight);
     }
@@ -116,12 +116,16 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
 
   init();
 
-  this.update = function() {
+  function translateShape() {
     for (var i = 0; i < SHAPE_BLOCK_COUNT; i++) {
       var block = blockList[i];
       block.setX(x + xShapeModel[position][i]);
       block.setY(y + yShapeModel[position][i]);
     }
+  }
+
+  this.update = function() {
+    translateShape();
 
     if (fallCount < fallDelay) {
       fallCount ++;
@@ -164,6 +168,15 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     }
   };
 
+  this.moveToBottom = function() {
+    while (y < gameHeight - height && !bottomIsColliding()) {
+      y ++;
+    }
+
+    // after shape is moved to bottom it is colliding
+    isColliding = true;
+  };
+
   function swapWidthHeight() {
     var temp = width;
 
@@ -172,6 +185,7 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   }
 
   this.turnLeft = function() {
+    console.log('turnLeft');
     swapWidthHeight();
     if (position > 0) {
       position --;
@@ -184,11 +198,22 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     if (x + width > gameWidth) {
       x --;
     }
+    if (y + height > gameHeight) {
+      y--;
+    }
 
-    createBlockIndexList(); 
+    createBlockIndexList();
+
+    translateShape(); 
+
+    if (isOverlapping()) {
+      this.turnRight();
+    } 
   };
 
   this.turnRight = function() {
+    console.log('turnRight');
+
     swapWidthHeight();
     if (position < 3) {
       position++;
@@ -201,9 +226,34 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     if (x + width > gameWidth) {
       x --;
     } 
+    if (y + height > gameHeight) {
+      y--;
+    }
 
     createBlockIndexList();
+
+    translateShape();
+
+    if (isOverlapping()) {
+      this.turnLeft();
+    }
   };
+
+  function isOverlapping() {
+    // check if there is a block under the shape
+    for (i in blockList) {
+        console.log("blockList: " + blockList[i].getX() + "," + blockList[i].getY());
+      for (row in gameBlockList) {
+        for (j in gameBlockList[row]) {
+          // console.log("row: " + gameBlockList[row][j].getX() + "," + gameBlockList[row][j].getY());
+          if (blockList[i].isOverlapping(gameBlockList[row][j])) {
+            console.log('overlapping');
+            return true;
+          }
+        }
+      }
+    }
+  }
 
   function bottomIsColliding() {
     // check if there is a block under the shape

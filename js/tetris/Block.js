@@ -41,9 +41,9 @@ function Block(xParam, yParam, gameWidthParam, gameHeightParam) {
     );
   };
 
-  this.isColliding = function(block) {
-    return ( (this.x === block.x) &&
-             (this.y === block.y) );
+  this.isOverlapping = function(block) {
+    return ( (x === block.getX()) &&
+             (y === block.getY()) );
   };
 
   this.isAtTop = function(block) {
