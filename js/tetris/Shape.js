@@ -125,8 +125,6 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   }
 
   this.update = function() {
-    translateShape();
-
     if (fallCount < fallDelay) {
       fallCount ++;
     }
@@ -137,6 +135,8 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   };
 
   this.render = function(ctx) {
+    translateShape();
+
     for (var i in blockList) {
       blockList[i].render(ctx);
     }
@@ -146,13 +146,14 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     y -= y;
   };
 
-  this.moveDown = function(dx) {
-    if (y < gameHeight - height) {
-      y += dx;
-    }
-
-    if (bottomIsColliding()) {
-      colliding = true;
+  this.moveDown = function(dy) {
+    console.log('movedown')
+    if (!colliding) {
+      y += dy;
+      
+      if (bottomIsColliding()) {
+        colliding = true;
+      }
     }
   };
 
@@ -169,12 +170,14 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   };
 
   this.moveToBottom = function() {
-    while (y < gameHeight - height && !bottomIsColliding()) {
-      y ++;
+    while (!colliding) {
+      this.moveDown(1);
     }
 
-    // after shape is moved to bottom it is colliding
-    isColliding = true;
+    console.log('mo');
+    console.log(y);
+    console.log(height);
+    console.log(gameHeight);
   };
 
   function swapWidthHeight() {
@@ -195,16 +198,16 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     }
 
     // prevent shape from passing the game border
-    if (x + width > gameWidth) {
-      x --;
+    var xOverflow = x + width - gameWidth;
+    if (xOverflow > 0) {
+      x -= xOverflow;
     }
-    if (y + height > gameHeight) {
-      y--;
+    var yOverflow = y + height - gameHeight;
+    if (yOverflow > 0) {
+      y -= yOverflow;
     }
 
     createBlockIndexList();
-
-    translateShape(); 
 
     if (isOverlapping()) {
       this.turnRight();
@@ -223,16 +226,16 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     }
 
     // prevent shape from passing the game border
-    if (x + width > gameWidth) {
-      x --;
-    } 
-    if (y + height > gameHeight) {
-      y--;
+    var xOverflow = x + width - gameWidth;
+    if (xOverflow > 0) {
+      x -= xOverflow;
+    }
+    var yOverflow = y + height - gameHeight;
+    if (yOverflow > 0) {
+      y -= yOverflow;
     }
 
     createBlockIndexList();
-
-    translateShape();
 
     if (isOverlapping()) {
       this.turnLeft();
@@ -240,6 +243,8 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   };
 
   function isOverlapping() {
+    translateShape();
+
     // check if there is a block under the shape
     for (i in blockList) {
         console.log("blockList: " + blockList[i].getX() + "," + blockList[i].getY());
@@ -256,9 +261,12 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   }
 
   function bottomIsColliding() {
+    translateShape();
+
     // check if there is a block under the shape
     for (i in bottomBlockIndexList) {
       for (row in gameBlockList) {
+        // console.log(gameBlockList[row]);
         for (j in gameBlockList[row]) {
           if (blockList[bottomBlockIndexList[i]].bottomIsColliding(gameBlockList[row][j])) {
             console.log('bottom colliding');
@@ -273,6 +281,7 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   };
 
   function leftIsColliding() {
+    translateShape();
     // check if there is a block to the left of the shape
     for (i in leftBlockIndexList) {
       for (row in gameBlockList) {
@@ -288,6 +297,7 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   };
 
   function rightIsColliding() {
+    translateShape();
     // check if there is a block to the right of the shape
     for (i in rightBlockIndexList) {
       for (row in gameBlockList) {

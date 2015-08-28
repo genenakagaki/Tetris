@@ -19,9 +19,9 @@ function Tetris() {
 
   var score = 0;
 
-  var shape = new Shape(shapeModelList[utils.random(0, 6)], 0, 0, width, height, blockList, fallDelay);
+  var shape = new Shape(shapeModelList[utils.random(0, 6)], 3, -4, width, height, blockList, fallDelay);
   var blockList = [];
-  for (var i = 0; i < height-1; i ++) {
+  for (var i = 0; i < height; i ++) { 
     blockList[i] = [];
   }
 
@@ -39,19 +39,122 @@ function Tetris() {
     console.log('paused');
   }
 
+
+  // --------------------------------------------------------------------------------
+  //   Key listener
+  // --------------------------------------------------------------------------------
+  
+  // System input
+  var stopPressed = false;
+  var pausePressed = false;
+
+  // Game input
+  var upPressed        = false;
+  var downPressed      = false;
+  var leftPressed      = false;
+  var rightPressed     = false;
+  var bottomPressed    = false;
+  var turnRightPressed = false;
+  var turnLeftPressed  = false;
+
+  window.onkeyup = function(e) {
+    key = e.keyCode;
+    if (key === 27) { // ESC
+      stopPressed = true;
+    }
+    if (key === 80) { // P
+      pausePressed = true;
+    }
+    
+    if (key === 32) { // Space
+      bottomPressed = true;
+    }
+    if (key === 81) { // Q
+      turnLeftPressed = true;
+    }
+    if (key === 69) { // E
+      turnRightPressed = true;
+    }
+  };
+
+  window.onkeydown = function(e) {
+    key = e.keyCode;
+    if (key === 87) { // W
+      upPressed = true;
+    }
+    if (key === 65) { // A
+      leftPressed = true;
+    }
+    if (key === 83) { // S
+      downPressed = true;
+    }
+    if (key === 68) { // D
+      rightPressed = true;
+    }
+  }
+
+  function checkSystemInput() {
+    if (stopPressed) {
+      stop();
+      stopPressed = false;
+    }
+    if (pausePressed) {
+      pause();
+      pausePressed = false;
+    }
+  }
+
+  function checkGameInput() {
+    if (upPressed) {
+      shape.turnRight(1);
+      upPressed = false;
+    }
+    if (downPressed) {
+      shape.moveDown(1);
+      downPressed = false;
+    }
+    if (leftPressed) {
+      shape.moveLeft(1);
+      leftPressed = false;
+    }
+    if (rightPressed) {
+      shape.moveRight(1);
+      rightPressed = false;
+    }
+    if (bottomPressed) {
+      shape.moveToBottom();
+      bottomPressed = false;
+    }
+    if (turnLeftPressed) {
+      shape.turnLeft();
+      turnLeftPressed = false;
+    }
+    if (turnRightPressed) {
+      shape.turnRight();
+      turnRightPressed = false;
+    }
+  }
+  
   function lineIsComplete(y) {
     return blockList[y].length === width;
   }
 
   function update() {
+    checkSystemInput();
+    
     if (paused) {
 
     }
     else {
+      checkGameInput();
+
       var linesCompleted = 0;
 
       // shape
+      shape.update();
+
       if (shape.isColliding()) {
+        console.log('colliding')
         // save the location of the blocks in shape
         var shapeBlockList = shape.getBlockList();
         for (i in shapeBlockList) {
@@ -74,6 +177,7 @@ function Tetris() {
             }
           }
           else if (block.isAtTop()) {
+            console.log("GMAEOVER")
             gameOver = true;
             pause();
           }
@@ -83,18 +187,16 @@ function Tetris() {
 
         fallDelay = 50 - linesCompleted * 2;
 
-        shape = new Shape(shapeModelList[utils.random(0, 6)], 0, 0, width, height, blockList, fallDelay);
+        shape = new Shape(shapeModelList[utils.random(0, 6)], 3, -4, width, height, blockList, fallDelay);
       }
-      shape.update();
     }
-  };
-
+  };5
   function render() {
     // clear canvas
     ctx.fillStyle = "#00FF00";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#000000";
-    ctx.fillRect(0, 0, width * BLOCK_SIZE, (height-1) * BLOCK_SIZE);
+    ctx.fillRect(0, 0, width * BLOCK_SIZE, (height) * BLOCK_SIZE);
 
     ctx.fillStyle = "#FFFFFF";
     ctx.font   = "15px Arial";
@@ -149,40 +251,7 @@ function Tetris() {
     }, 10);
   };
 
-  window.onkeyup = function(e) {
-    key = e.keyCode;
-    if (key === 27) { // ESC
-      stop();
-    }
-    if (key === 80) { // P
-      pause();
-    }
-    
-    if (key === 32) { // Space
-      shape.moveToBottom();
-    }
-    if (key === 81) { // Q
-      shape.turnLeft();
-    }
-    if (key === 69) { // R
-      shape.turnRight();
-    }
-  };
-
-  window.onkeydown = function(e) {
-    key = e.keyCode;
-    if (key === 87) { // W
-    }
-    if (key === 65) { // A
-      shape.moveLeft(1);
-    }
-    if (key === 83) { // S
-      shape.moveDown(1);
-    }
-    if (key === 68) { // D
-      shape.moveRight(1);
-    }
-  }
+  
 }
 
 new Tetris().run();

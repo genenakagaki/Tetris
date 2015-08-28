@@ -23,7 +23,7 @@ function Block(xParam, yParam, gameWidthParam, gameHeightParam) {
   this.bottomIsColliding = function(block) {
     return ( 
       (x === block.getX())   &&
-      (y === block.getY()-1) 
+      (y === block.getY()-1)
     );
   };
 
@@ -47,6 +47,7 @@ function Block(xParam, yParam, gameWidthParam, gameHeightParam) {
   };
 
   this.isAtTop = function(block) {
+    console.log("x: "+x+" y: "+y)
     return y <= 0;
   }
 
