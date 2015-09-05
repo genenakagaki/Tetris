@@ -1,4 +1,4 @@
-function Block(xParam, yParam, gameWidthParam, gameHeightParam) {
+function Block(xParam, yParam, gameWidthParam, gameHeightParam, colorParam) {
   var size = BLOCK_SIZE;
   
   var x = xParam;
@@ -7,13 +7,19 @@ function Block(xParam, yParam, gameWidthParam, gameHeightParam) {
   var gameWidth  = gameWidthParam;
   var gameHeight = gameHeightParam;
 
+  var color = colorParam;
+
   this.update = function() {
 
   };
 
   this.render = function(ctx) {
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(x * size, y * size, size, size);
+    var xRendPos = x * size;
+    var yRendPos = y * size;
+    ctx.fillStyle = "#000000";
+    ctx.fillRect(xRendPos, yRendPos, size, size);
+    ctx.fillStyle = color;
+    ctx.fillRect(xRendPos + 1, yRendPos + 1, size - 2, size - 2);
   };
 
   this.moveDown = function(dy) {

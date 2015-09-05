@@ -1,33 +1,37 @@
 function Tetris() {
-  // get canvas
   var canvas = document.getElementById("tetris");
   var ctx    = canvas.getContext("2d");
-  canvas.width  = 512;
-  canvas.height = 480;
 
-  var width  = 10;
-  var height = 20;
+  var width;
+  var height;
 
   var gameInterval;
   var paused   = false;
   var gameOver = false;
 
-  var key;
+  // System input
+  var stopAction  = false;
+  var pauseAction = false;
+
+  // Game input
+  var upAction        = false;
+  var downAction      = false;
+  var leftAction      = false;
+  var rightAction     = false;
+  var bottomAction    = false;
+  var turnLeftAction  = false;
+  var turnRightAction = false;
+
+  var pauseMenu;
 
   var fallCount = 0;
   var fallDelay = 50;
 
   var score = 0;
+  var level = 0;
 
-  var shape = new Shape(shapeModelList[utils.random(0, 6)], 3, -4, width, height, blockList, fallDelay);
-  var blockList = [];
-  for (var i = 0; i < height; i ++) { 
-    blockList[i] = [];
-  }
-
-  this.run = function() {
-    gameLoop();
-  };
+  var shape;
+  var blockList;
 
   function stop() {
     clearInterval(gameInterval);
@@ -39,168 +43,227 @@ function Tetris() {
     console.log('paused');
   }
 
+  function init() {
+    width  = 10;
+    height = 20;
+
+    canvas.width  = BLOCK_SIZE * width;
+    canvas.height = BLOCK_SIZE * height;
+
+    pauseMenu = new PauseMenu(20, 20, 150, 200);
+
+    shape = new Shape(shapeModelList[utils.random(0, 6)], 3, -4, width, height, blockList, fallDelay);
+
+    blockList = [];
+    for (var i = 0; i < height; i ++) { 
+      blockList[i] = [];
+    }
+
+  }
 
   // --------------------------------------------------------------------------------
-  //   Key listener
+  //   Key Listener
   // --------------------------------------------------------------------------------
-  
-  // System input
-  var stopPressed = false;
-  var pausePressed = false;
-
-  // Game input
-  var upPressed        = false;
-  var downPressed      = false;
-  var leftPressed      = false;
-  var rightPressed     = false;
-  var bottomPressed    = false;
-  var turnRightPressed = false;
-  var turnLeftPressed  = false;
-
   window.onkeyup = function(e) {
     key = e.keyCode;
+      
+    // System input
     if (key === 27) { // ESC
-      stopPressed = true;
+      pauseAction = true;
     }
     if (key === 80) { // P
-      pausePressed = true;
+      pauseAction = true;
     }
     
-    if (key === 32) { // Space
-      bottomPressed = true;
-    }
-    if (key === 81) { // Q
-      turnLeftPressed = true;
-    }
-    if (key === 69) { // E
-      turnRightPressed = true;
+    // Game input
+    if (!paused) {
+      if (key === 32) { // Space
+        bottomAction = true;
+      }
+      if (key === 81) { // Q
+        turnLeftAction = true;
+      }
+      if (key === 69) { // E
+        turnRightAction = true;
+      }
     }
   };
 
   window.onkeydown = function(e) {
     key = e.keyCode;
+
+    if (key === 37) { // LEFT
+      leftAction = true;
+    }
+    if (key === 38) { // UP
+      upAction = true;
+    }
+    if (key === 39) { // RIGHT
+      rightAction = true;
+    }
+    if (key === 40) { // DOWN
+      downAction = true;
+    }
     if (key === 87) { // W
-      upPressed = true;
+      upAction = true;
     }
     if (key === 65) { // A
-      leftPressed = true;
+      leftAction = true;
     }
     if (key === 83) { // S
-      downPressed = true;
+      downAction = true;
     }
     if (key === 68) { // D
-      rightPressed = true;
+      rightAction = true;
     }
-  }
+  };
 
   function checkSystemInput() {
-    if (stopPressed) {
+    if (stopAction) {
       stop();
-      stopPressed = false;
+      stopAction = false;
     }
-    if (pausePressed) {
+    if (pauseAction) {
       pause();
-      pausePressed = false;
+      pauseAction = false;
     }
-  }
+  };
 
-  function checkGameInput() {
-    if (upPressed) {
+  function checkGameInput() { 
+    if (upAction) {
       shape.turnRight(1);
-      upPressed = false;
+      upAction = false;
     }
-    if (downPressed) {
+    if (downAction) {
       shape.moveDown(1);
-      downPressed = false;
+      downAction = false;
     }
-    if (leftPressed) {
+    if (leftAction) {
       shape.moveLeft(1);
-      leftPressed = false;
+      leftAction = false;
     }
-    if (rightPressed) {
+    if (rightAction) {
       shape.moveRight(1);
-      rightPressed = false;
+      rightAction = false;
     }
-    if (bottomPressed) {
+    if (bottomAction) {
       shape.moveToBottom();
-      bottomPressed = false;
+      bottomAction = false;
     }
-    if (turnLeftPressed) {
+    if (turnLeftAction) {
       shape.turnLeft();
-      turnLeftPressed = false;
+      turnLeftAction = false;
     }
-    if (turnRightPressed) {
+    if (turnRightAction) {
       shape.turnRight();
-      turnRightPressed = false;
+      turnRightAction = false;
     }
-  }
+  };
   
+  // --------------------------------------------------------------------------------
+  //   Mouse Listener
+  // --------------------------------------------------------------------------------
+  canvas.addEventListener('click', function() {
+    if (gameOver) {
+
+    }
+    else if (paused) {
+      var xMouse = event.pageX - canvas.offsetLeft;
+      var yMouse = event.pageY - canvas.offsetTop;
+      if (pauseMenu.resumeButton().contains(xMouse, yMouse)) {
+        pause();
+      }
+      else if (pauseMenu.restartButton().contains(xMouse, yMouse)) {
+
+      }
+      else if (pauseMenu.quitButton().contains(xMouse, yMouse)) {
+
+      }
+    }
+  }, false);
+
   function lineIsComplete(y) {
     return blockList[y].length === width;
+  }
+
+  function createNewShape() {
+    var shapeModel = shapeModelList[utils.random(0, 6)];
+    shape = new Shape(shapeModel, 3, -1 - shapeModel.height, width, height, blockList, fallDelay);
   }
 
   function update() {
     checkSystemInput();
     
-    if (paused) {
+    if (paused || gameOver) {
 
     }
     else {
-      checkGameInput();
+      checkGameInput(shape);
 
       var linesCompleted = 0;
 
       // shape
       shape.update();
 
-      if (shape.isColliding()) {
-        console.log('colliding')
+      if (shape.isLocked()) {
+        console.log('is locked')
         // save the location of the blocks in shape
         var shapeBlockList = shape.getBlockList();
         for (i in shapeBlockList) {
           var block = shapeBlockList[i];
-          var yBlock = block.getY();
-          blockList[yBlock].push(block);
 
-          // check if line is complete
-          if (lineIsComplete(yBlock)) {
-            linesCompleted++;
+          if (block.isAtTop()) {
+            gameOver = true;
+            break;
+          }
+          else {
+            var yBlock = block.getY();
+            blockList[yBlock].push(block);
 
-            // shift down all blocks above line
-            var yShift = yBlock;
-            while (yShift >= 1) {
-              blockList[yShift] = blockList[yShift-1];
-              for (j in blockList[yShift]) {
-                blockList[yShift][j].moveDown(1);
+            // check if line is complete
+            if (lineIsComplete(yBlock)) {
+              linesCompleted++;
+
+              // shift down all blocks above line
+              var yShift = yBlock;
+              while (yShift >= 1) {
+                blockList[yShift] = blockList[yShift-1];
+                for (j in blockList[yShift]) {
+                  blockList[yShift][j].moveDown(1);
+                }
+                yShift--;
               }
-              yShift--;
             }
           }
-          else if (block.isAtTop()) {
-            console.log("GMAEOVER")
-            gameOver = true;
-            pause();
-          }
+
+
         }
 
         score += linesCompleted * 100;
 
         fallDelay = 50 - linesCompleted * 2;
 
-        shape = new Shape(shapeModelList[utils.random(0, 6)], 3, -4, width, height, blockList, fallDelay);
+        createNewShape();
       }
     }
-  };5
+  };
+
   function render() {
     // clear canvas
     ctx.fillStyle = "#00FF00";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#000000";
-    ctx.fillRect(0, 0, width * BLOCK_SIZE, (height) * BLOCK_SIZE);
+    ctx.fillRect(0, 0, width * BLOCK_SIZE, height * BLOCK_SIZE);
 
     ctx.fillStyle = "#FFFFFF";
+    for (i in width) {
+      ctx.fillRect(i * BLOCK_SIZE, 0, 2, height * BLOCK_SIZE);
+    }
+
+    // score
+    ctx.fillStyle = "#FFFFFF";
     ctx.font   = "15px Arial";
-    ctx.fillText("Score: " + score, 15, 15);
+    ctx.fillText("Score: " + score, 100, 15);
 
     shape.render(ctx);
     var blockRowCount = blockList.length;
@@ -212,9 +275,13 @@ function Tetris() {
     }
 
     if (gameOver) {
-      ctx.fillStyle = "#142034";
+      ctx.fillStyle = "#FFFFFF";
       ctx.font = "50px Arial";
       ctx.fillText("Game Over", 50, 50);
+      stop();
+    }
+    else if (paused) {
+      pauseMenu.render(ctx);
     }
   };
   
@@ -251,6 +318,25 @@ function Tetris() {
     }, 10);
   };
 
+  this.run = function() {
+    init();
+    gameLoop();
+  };
+
+  // --------------------------------------------------------------------------------
+  //   Getters
+  // --------------------------------------------------------------------------------
+  this.isPaused = function() {
+    return paused;
+  };
+
+  this.isGameOver = function() {
+    return gameOver;
+  };
+
+  this.pauseMenu = function() {
+    return pauseMenu;
+  };
   
 }
 

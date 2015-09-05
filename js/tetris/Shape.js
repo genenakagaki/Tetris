@@ -22,6 +22,9 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   var fallDelay = fallDelayParam;
   var fallCount = 0;
 
+  var lockDelay = fallDelayParam;
+  var lockCount = 0;
+
   var position = 0;
   var UP_POS = 0;
   var RIGHT_POS = 1;
@@ -29,6 +32,8 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   var LEFT_POS = 3;
 
   var colliding = false;
+
+  var locked = false;
 
   // ----------------------------------------------------------------------------------------------------
   //   initialization
@@ -40,7 +45,7 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
       var xBlock = xShapeModel[position][blockIndex] + x;
       var yBlock = yShapeModel[position][blockIndex] + y;
 
-      blockList[blockIndex] = new Block(xBlock, yBlock, gameWidth, gameHeight);
+      blockList[blockIndex] = new Block(xBlock, yBlock, gameWidth, gameHeight, shapeModel.color);
     }
   }
 
@@ -125,12 +130,19 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   }
 
   this.update = function() {
-    if (fallCount < fallDelay) {
-      fallCount ++;
+    if (colliding) {
+      lockCount ++;
+      if (lockCount > lockDelay) {
+        lockCount = 0;
+        locked = true;
+      }
     }
     else {
-      fallCount = 0;
-      this.moveDown(1);
+      fallCount ++;
+      if (fallCount > fallDelay) {
+        fallCount = 0;
+        this.moveDown(1);
+      } 
     }
   };
 
@@ -157,6 +169,9 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     }
   };
 
+  // --------------------------------------------------------------------------------
+  //   Movement
+  // --------------------------------------------------------------------------------
   this.moveLeft = function(dx) {
     if (x > 0 && !leftIsColliding()) {
       x -= dx;
@@ -174,10 +189,7 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
       this.moveDown(1);
     }
 
-    console.log('mo');
-    console.log(y);
-    console.log(height);
-    console.log(gameHeight);
+    locked = true;
   };
 
   function swapWidthHeight() {
@@ -312,9 +324,16 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     }
   };
 
+  // --------------------------------------------------------------------------------
+  //   Getters
+  // --------------------------------------------------------------------------------
   this.isColliding = function() {
     return colliding;
   };
+
+  this.isLocked = function() {
+    return locked;
+  }
 
   this.getBlockList = function() {
     return blockList;
