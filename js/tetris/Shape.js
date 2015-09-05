@@ -153,7 +153,10 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
       blockList[i].render(ctx);
     }
   };
-
+  
+  // --------------------------------------------------------------------------------
+  //   Movement
+  // --------------------------------------------------------------------------------
   this.moveUp = function(dy) {
     y -= y;
   };
@@ -169,18 +172,29 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     }
   };
 
-  // --------------------------------------------------------------------------------
-  //   Movement
-  // --------------------------------------------------------------------------------
   this.moveLeft = function(dx) {
     if (x > 0 && !leftIsColliding()) {
       x -= dx;
+    }
+
+    if (colliding) {
+      if (!bottomIsColliding()) {
+        colliding = false;
+        lockCount = 0;
+      }
     }
   };
 
   this.moveRight = function(dx) {
     if (x < gameWidth - width && !rightIsColliding()) {
       x += dx;
+    }
+
+    if (colliding) {
+      if (!bottomIsColliding()) {
+        colliding = false;
+        lockCount = 0;
+      }
     }
   };
 

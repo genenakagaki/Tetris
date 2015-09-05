@@ -52,13 +52,16 @@ function Tetris() {
 
     pauseMenu = new PauseMenu(20, 20, 150, 200);
 
-    shape = new Shape(shapeModelList[utils.random(0, 6)], 3, -4, width, height, blockList, fallDelay);
+    restart();
+  }
 
+  function restart() {
     blockList = [];
     for (var i = 0; i < height; i ++) { 
       blockList[i] = [];
     }
-
+    
+    shape = new Shape(shapeModelList[utils.random(0, 6)], 3, -4, width, height, blockList, fallDelay);
   }
 
   // --------------------------------------------------------------------------------
@@ -174,10 +177,12 @@ function Tetris() {
         pause();
       }
       else if (pauseMenu.restartButton().contains(xMouse, yMouse)) {
-
+        restart();
+        pause();
       }
       else if (pauseMenu.quitButton().contains(xMouse, yMouse)) {
-
+        gameOver = true;
+        pause();
       }
     }
   }, false);
@@ -239,7 +244,7 @@ function Tetris() {
 
         }
 
-        score += linesCompleted * 100;
+        score += Math.pow(20, linesCompleted);
 
         fallDelay = 50 - linesCompleted * 2;
 
