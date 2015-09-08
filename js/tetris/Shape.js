@@ -1,5 +1,4 @@
-function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, gameBlockListParam, fallDelayParam) {
-
+function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, gameBlockListParam) {
   // Shape top left block position
   var x = xParam;
   var y = yParam;
@@ -19,12 +18,6 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   var leftBlockIndexList   = [];
   var rightBlockIndexList  = [];
 
-  var fallDelay = fallDelayParam;
-  var fallCount = 0;
-
-  var lockDelay = fallDelayParam;
-  var lockCount = 0;
-
   var position = 0;
   var UP_POS = 0;
   var RIGHT_POS = 1;
@@ -32,8 +25,6 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   var LEFT_POS = 3;
 
   var colliding = false;
-
-  var locked = false;
 
   // ----------------------------------------------------------------------------------------------------
   //   initialization
@@ -129,23 +120,6 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     }
   }
 
-  this.update = function() {
-    if (colliding) {
-      lockCount ++;
-      if (lockCount > lockDelay) {
-        lockCount = 0;
-        locked = true;
-      }
-    }
-    else {
-      fallCount ++;
-      if (fallCount > fallDelay) {
-        fallCount = 0;
-        this.moveDown(1);
-      } 
-    }
-  };
-
   this.render = function(ctx) {
     translateShape();
 
@@ -153,7 +127,7 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
       blockList[i].render(ctx);
     }
   };
-  
+
   // --------------------------------------------------------------------------------
   //   Movement
   // --------------------------------------------------------------------------------
@@ -173,10 +147,11 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   };
 
   this.moveLeft = function(dx) {
-    if (x > 0 && !leftIsColliding()) {
+    if (x > 0 && !this.leftIsColliding()) {
       x -= dx;
     }
 
+    // detect bottom collision when shape slided to left
     if (colliding) {
       if (!bottomIsColliding()) {
         colliding = false;
@@ -186,10 +161,11 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   };
 
   this.moveRight = function(dx) {
-    if (x < gameWidth - width && !rightIsColliding()) {
+    if (x < gameWidth - width && !this.rightIsColliding()) {
       x += dx;
     }
 
+    // detect bottom collision when shape slided to right
     if (colliding) {
       if (!bottomIsColliding()) {
         colliding = false;
@@ -273,7 +249,7 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
 
     // check if there is a block under the shape
     for (i in blockList) {
-        console.log("blockList: " + blockList[i].getX() + "," + blockList[i].getY());
+      console.log("blockList: " + blockList[i].getX() + "," + blockList[i].getY());
       for (row in gameBlockList) {
         for (j in gameBlockList[row]) {
           // console.log("row: " + gameBlockList[row][j].getX() + "," + gameBlockList[row][j].getY());
@@ -306,7 +282,7 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     return y === gameHeight - height;
   };
 
-  function leftIsColliding() {
+  this.leftIsColliding = function() {
     translateShape();
     // check if there is a block to the left of the shape
     for (i in leftBlockIndexList) {
@@ -322,7 +298,7 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
     }
   };
 
-  function rightIsColliding() {
+  this.rightIsColliding = function() {
     translateShape();
     // check if there is a block to the right of the shape
     for (i in rightBlockIndexList) {
@@ -341,16 +317,36 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   // --------------------------------------------------------------------------------
   //   Getters
   // --------------------------------------------------------------------------------
+  this.x = function() {
+    return x;
+  };
+
+  this.y = function() {
+    return y;
+  };
+
   this.isColliding = function() {
     return colliding;
   };
-
-  this.isLocked = function() {
-    return locked;
-  }
 
   this.getBlockList = function() {
     return blockList;
   };
 
+  // --------------------------------------------------------------------------------
+  //   Setters
+  // --------------------------------------------------------------------------------
+  this.setY = function(newY) {
+    y = newY;
+  };
+
+  this.setColliding = function(boolean) {
+    colliding = boolean;
+  };
+
+  this.setColor = function(color) {
+    for (i in blockList) {
+      blockList[i].setColor(color);
+    }
+  };
 }

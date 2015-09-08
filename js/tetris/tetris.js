@@ -60,8 +60,8 @@ function Tetris() {
     for (var i = 0; i < height; i ++) { 
       blockList[i] = [];
     }
-    
-    shape = new Shape(shapeModelList[utils.random(0, 6)], 3, -4, width, height, blockList, fallDelay);
+
+    createNewShape();
   }
 
   // --------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ function Tetris() {
       
     // System input
     if (key === 27) { // ESC
-      pauseAction = true;
+      stopAction = true;
     }
     if (key === 80) { // P
       pauseAction = true;
@@ -193,7 +193,7 @@ function Tetris() {
 
   function createNewShape() {
     var shapeModel = shapeModelList[utils.random(0, 6)];
-    shape = new Shape(shapeModel, 3, -1 - shapeModel.height, width, height, blockList, fallDelay);
+    shape = new FallingShape(shapeModel, 3, - shapeModel.height, width, height, blockList, fallDelay);
   }
 
   function update() {
@@ -222,6 +222,7 @@ function Tetris() {
             break;
           }
           else {
+            console.log('push')
             var yBlock = block.getY();
             blockList[yBlock].push(block);
 
@@ -240,13 +241,24 @@ function Tetris() {
               }
             }
           }
-
-
         }
 
-        score += Math.pow(20, linesCompleted);
+        if (linesCompleted != 0) {
+          score += Math.pow(20, linesCompleted);
+        }
 
-        fallDelay = 50 - linesCompleted * 2;
+        if (score > 500) {
+          fallDelay = 10;
+        }
+        if (score > 400) {
+          fallDelay = 20;
+        }
+        if (score > 300) {
+          fallDelay = 30;
+        }
+        if (score > 200) {
+          fallDelay = 40;
+        }
 
         createNewShape();
       }
@@ -327,22 +339,6 @@ function Tetris() {
     init();
     gameLoop();
   };
-
-  // --------------------------------------------------------------------------------
-  //   Getters
-  // --------------------------------------------------------------------------------
-  this.isPaused = function() {
-    return paused;
-  };
-
-  this.isGameOver = function() {
-    return gameOver;
-  };
-
-  this.pauseMenu = function() {
-    return pauseMenu;
-  };
-  
 }
 
 new Tetris().run();

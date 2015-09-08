@@ -57,16 +57,29 @@ function Block(xParam, yParam, gameWidthParam, gameHeightParam, colorParam) {
     return y <= 0;
   }
 
+  // --------------------------------------------------------------------------------
+  //   Getters
+  // --------------------------------------------------------------------------------
   this.getX = function() {
     return x;
   };
-  this.setX = function(xNew) {
-    x = xNew;
-  };
+
   this.getY = function() {
     return y;
   };
+
+  // --------------------------------------------------------------------------------
+  //   Setters
+  // --------------------------------------------------------------------------------
+  this.setX = function(xNew) {
+    x = xNew;
+  };
+
   this.setY = function(yNew) {
     y = yNew;
+  };
+
+  this.setColor = function(newColor) {
+    color = newColor;
   };
 };
