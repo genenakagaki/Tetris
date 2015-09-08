@@ -5,8 +5,8 @@ function PauseMenu(x, y, width, height) {
   var width  = width;
   var height = height;
 
-  var resumeButton  = new Button(x +10, y +40, width -20, 30, "Resume");
-  var restartButton = new Button(x +10, y +80, width -20, 30, "Restart");
+  var resumeButton  = new Button(x +10, y +40,  width -20, 30, "Resume");
+  var restartButton = new Button(x +10, y +80,  width -20, 30, "Restart");
   var quitButton    = new Button(x +10, y +120, width -20, 30, "Quit");
 
   this.update = function() {
@@ -41,4 +41,10 @@ function PauseMenu(x, y, width, height) {
   this.resumeWidth = function() {
     return resume.width();
   };
+
+  this.setHover = function(boolean) {
+    resumeButton.setHover(boolean);
+    restartButton.setHover(boolean);
+    quitButton.setHover(boolean);
+  }
 }

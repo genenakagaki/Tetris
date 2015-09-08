@@ -349,4 +349,10 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
       blockList[i].setColor(color);
     }
   };
+
+  this.setBorderColor = function(borderColor) {
+    for (i in blockList) {
+      blockList[i].setBorderColor(borderColor);
+    }
+  }
 }

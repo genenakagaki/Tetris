@@ -8,6 +8,7 @@ function Block(xParam, yParam, gameWidthParam, gameHeightParam, colorParam) {
   var gameHeight = gameHeightParam;
 
   var color = colorParam;
+  var borderColor = "#000000";
 
   this.update = function() {
 
@@ -16,7 +17,7 @@ function Block(xParam, yParam, gameWidthParam, gameHeightParam, colorParam) {
   this.render = function(ctx) {
     var xRendPos = x * size;
     var yRendPos = y * size;
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = borderColor;
     ctx.fillRect(xRendPos, yRendPos, size, size);
     ctx.fillStyle = color;
     ctx.fillRect(xRendPos + 1, yRendPos + 1, size - 2, size - 2);
@@ -82,4 +83,8 @@ function Block(xParam, yParam, gameWidthParam, gameHeightParam, colorParam) {
   this.setColor = function(newColor) {
     color = newColor;
   };
+
+  this.setBorderColor = function(newBorderColor) {
+    borderColor = newBorderColor;
+  }
 };

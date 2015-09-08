@@ -6,8 +6,9 @@ function Tetris() {
   var height;
 
   var gameInterval;
-  var paused   = false;
-  var gameOver = false;
+  var started  = false;
+  var paused   = true;
+  var isGameOver = false;
 
   // System input
   var stopAction  = false;
@@ -22,7 +23,9 @@ function Tetris() {
   var turnLeftAction  = false;
   var turnRightAction = false;
 
+  var startMenu;
   var pauseMenu;
+  var gameOverMenu;
 
   var fallCount = 0;
   var fallDelay = 50;
@@ -43,6 +46,12 @@ function Tetris() {
     console.log('paused');
   }
 
+  function gameOver() {
+    pause();
+    isGameOver = true;
+    gameOverMenu.setScore(score);
+  }
+
   function init() {
     width  = 10;
     height = 20;
@@ -50,9 +59,9 @@ function Tetris() {
     canvas.width  = BLOCK_SIZE * width;
     canvas.height = BLOCK_SIZE * height;
 
-    pauseMenu = new PauseMenu(20, 20, 150, 200);
-
-    restart();
+    pauseMenu    = new PauseMenu(canvas.width/2 - 75,    canvas.height/2 - 150, 150, 175);
+    startMenu    = new StartMenu(canvas.width/2 - 75,    canvas.height/2 - 150, 150, 175);
+    gameOverMenu = new GameOverMenu(canvas.width/2 - 75, canvas.height/2 - 150, 150, 175);
   }
 
   function restart() {
@@ -62,6 +71,9 @@ function Tetris() {
     }
 
     createNewShape();
+
+    isGameOver = false;
+    started = true;
   }
 
   // --------------------------------------------------------------------------------
@@ -71,11 +83,13 @@ function Tetris() {
     key = e.keyCode;
       
     // System input
-    if (key === 27) { // ESC
-      stopAction = true;
-    }
-    if (key === 80) { // P
-      pauseAction = true;
+    if (started) {
+      if (key === 27) { // ESC
+        pauseAction = true;
+      }
+      if (key === 80) { // P
+        pauseAction = true;
+      }
     }
     
     // Game input
@@ -95,29 +109,31 @@ function Tetris() {
   window.onkeydown = function(e) {
     key = e.keyCode;
 
-    if (key === 37) { // LEFT
-      leftAction = true;
-    }
-    if (key === 38) { // UP
-      upAction = true;
-    }
-    if (key === 39) { // RIGHT
-      rightAction = true;
-    }
-    if (key === 40) { // DOWN
-      downAction = true;
-    }
-    if (key === 87) { // W
-      upAction = true;
-    }
-    if (key === 65) { // A
-      leftAction = true;
-    }
-    if (key === 83) { // S
-      downAction = true;
-    }
-    if (key === 68) { // D
-      rightAction = true;
+    if (!paused) {
+      if (key === 37) { // LEFT
+        leftAction = true;
+      }
+      if (key === 38) { // UP
+        upAction = true;
+      }
+      if (key === 39) { // RIGHT
+        rightAction = true;
+      }
+      if (key === 40) { // DOWN
+        downAction = true;
+      }
+      if (key === 87) { // W
+        upAction = true;
+      }
+      if (key === 65) { // A
+        leftAction = true;
+      }
+      if (key === 83) { // S
+        downAction = true;
+      }
+      if (key === 68) { // D
+        rightAction = true;
+      }
     }
   };
 
@@ -166,23 +182,82 @@ function Tetris() {
   // --------------------------------------------------------------------------------
   //   Mouse Listener
   // --------------------------------------------------------------------------------
-  canvas.addEventListener('click', function() {
-    if (gameOver) {
-
-    }
-    else if (paused) {
+  canvas.addEventListener('mousemove', function() {
+    if (paused) {
       var xMouse = event.pageX - canvas.offsetLeft;
       var yMouse = event.pageY - canvas.offsetTop;
-      if (pauseMenu.resumeButton().contains(xMouse, yMouse)) {
-        pause();
+      if (!started) {
+        if (startMenu.startButton().contains(xMouse, yMouse)) {
+          startMenu.startButton().setHover(true);
+        }
+        else if (startMenu.optionButton().contains(xMouse, yMouse)) {
+          startMenu.optionButton().setHover(true);
+        }
+        else if (startMenu.highScoreButton().contains(xMouse, yMouse)) {
+          startMenu.highScoreButton().setHover(true);
+        }
+        else {
+          startMenu.setHover(false);
+        }
       }
-      else if (pauseMenu.restartButton().contains(xMouse, yMouse)) {
-        restart();
-        pause();
+      else if (isGameOver) {
+        if (gameOverMenu.restartButton().contains(xMouse, yMouse)) {
+          gameOverMenu.restartButton().setHover(true);
+        }
+        else if (gameOverMenu.highScoreButton().contains(xMouse, yMouse)) {
+          gameOverMenu.highScoreButton().setHover(true);
+        }
+        else {
+          gameOverMenu.setHover(false);
+        }
       }
-      else if (pauseMenu.quitButton().contains(xMouse, yMouse)) {
-        gameOver = true;
-        pause();
+      else {
+        if (pauseMenu.resumeButton().contains(xMouse, yMouse)) {
+          pauseMenu.resumeButton().setHover(true);
+        }
+        else if (pauseMenu.restartButton().contains(xMouse, yMouse)) {
+          pauseMenu.restartButton().setHover(true);
+        }
+        else if (pauseMenu.quitButton().contains(xMouse, yMouse)) {
+          pauseMenu.quitButton().setHover(true);
+        }
+        else {
+          pauseMenu.setHover(false);
+        }
+      }
+    }
+  }, false);
+
+  canvas.addEventListener('click', function() {
+    if (paused) {
+      var xMouse = event.pageX - canvas.offsetLeft;
+      var yMouse = event.pageY - canvas.offsetTop;
+      if (!started) {
+        if (startMenu.startButton().contains(xMouse, yMouse)) {
+          restart();
+          pause();
+        }
+        else if (startMenu.optionButton().contains(xMouse, yMouse)) {
+
+        }
+      }
+      else if (isGameOver) {
+        if (gameOverMenu.restartButton().contains(xMouse, yMouse)) {
+          restart();
+          pause();
+        }
+      }
+      else {
+        if (pauseMenu.resumeButton().contains(xMouse, yMouse)) {
+          pause();
+        }
+        else if (pauseMenu.restartButton().contains(xMouse, yMouse)) {
+          restart();
+          pause();
+        }
+        else if (pauseMenu.quitButton().contains(xMouse, yMouse)) {
+          started = false;
+        }
       }
     }
   }, false);
@@ -199,10 +274,9 @@ function Tetris() {
   function update() {
     checkSystemInput();
     
-    if (paused || gameOver) {
-
+    if (paused) {
     }
-    else {
+    else if (started) {
       checkGameInput(shape);
 
       var linesCompleted = 0;
@@ -218,7 +292,7 @@ function Tetris() {
           var block = shapeBlockList[i];
 
           if (block.isAtTop()) {
-            gameOver = true;
+            gameOver();
             break;
           }
           else {
@@ -244,7 +318,7 @@ function Tetris() {
         }
 
         if (linesCompleted != 0) {
-          score += Math.pow(20, linesCompleted);
+          score += linesCompleted * 200 + Math.pow(5, linesCompleted);
         }
 
         if (score > 500) {
@@ -272,33 +346,35 @@ function Tetris() {
     ctx.fillStyle = "#000000";
     ctx.fillRect(0, 0, width * BLOCK_SIZE, height * BLOCK_SIZE);
 
-    ctx.fillStyle = "#FFFFFF";
-    for (i in width) {
-      ctx.fillRect(i * BLOCK_SIZE, 0, 2, height * BLOCK_SIZE);
-    }
+    if (started) {
+      // score
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font   = "15px Arial";
+      ctx.fillText("Score: " + score, 100, 15);
 
-    // score
-    ctx.fillStyle = "#FFFFFF";
-    ctx.font   = "15px Arial";
-    ctx.fillText("Score: " + score, 100, 15);
-
-    shape.render(ctx);
-    var blockRowCount = blockList.length;
-    for (var i = 0; i < blockRowCount; i++) {
-      var blockCount = blockList[i].length;
-      for (var j = 0; j < blockCount; j++) {
-        blockList[i][j].render(ctx);
+      shape.render(ctx);
+      var blockRowCount = blockList.length;
+      for (var i = 0; i < blockRowCount; i++) {
+        var blockCount = blockList[i].length;
+        for (var j = 0; j < blockCount; j++) {
+          blockList[i][j].render(ctx);
+        }
       }
     }
 
-    if (gameOver) {
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = "50px Arial";
-      ctx.fillText("Game Over", 50, 50);
-      stop();
-    }
-    else if (paused) {
-      pauseMenu.render(ctx);
+    if (paused) {
+      if (!started) {
+        startMenu.render(ctx);
+      }
+      else if (isGameOver) {
+        gameOverMenu.render(ctx);
+      }
+      else {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+        ctx.fillRect(0, 0, width * BLOCK_SIZE, height * BLOCK_SIZE);
+
+        pauseMenu.render(ctx);
+      }
     }
   };
   

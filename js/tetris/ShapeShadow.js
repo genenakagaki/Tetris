@@ -8,7 +8,8 @@ function ShapeShadow(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam
   }
 
   function init() {
-    shape.setColor("#888888");
+    shape.setColor("#222222");
+    shape.setBorderColor(shapeModel.color);
     moveToBottom();
   }
 

@@ -7,16 +7,21 @@ function Button(x, y, width, height, text) {
 
   var text = text;
 
+  var hover = false;
+
   this.render = function(ctx) {
     ctx.fillStyle = "#FFFF88";
     ctx.fillRect(x, y, width, height);
 
     ctx.fillStyle = "#FFFFFF";
+    if (hover) {
+      ctx.fillStyle = "#FF0000";
+    }
     ctx.fillRect(x +1, y +1, width -2, height -2);
 
     ctx.fillStyle = "#000000";
     ctx.font = "20px arial";
-    ctx.fillText(text, x +22, y +22);
+    ctx.fillText(text, x +12, y +22);
   };
 
   this.contains = function(xParam, yParam) {
@@ -45,4 +50,8 @@ function Button(x, y, width, height, text) {
   this.height = function() {
     return height;
   };
+
+  this.setHover = function(boolean) {
+    hover = boolean;
+  }
 }
