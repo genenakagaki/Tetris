@@ -65,6 +65,7 @@ function Tetris() {
   }
 
   function restart() {
+    document.getElementsByTagName("audio")[0].play();
     blockList = [];
     for (var i = 0; i < height; i ++) { 
       blockList[i] = [];
@@ -285,7 +286,6 @@ function Tetris() {
       shape.update();
 
       if (shape.isLocked()) {
-        console.log('is locked')
         // save the location of the blocks in shape
         var shapeBlockList = shape.getBlockList();
         for (i in shapeBlockList) {
@@ -296,7 +296,6 @@ function Tetris() {
             break;
           }
           else {
-            console.log('push')
             var yBlock = block.getY();
             blockList[yBlock].push(block);
 
@@ -306,13 +305,18 @@ function Tetris() {
 
               // shift down all blocks above line
               var yShift = yBlock;
+              console.log("line is complete: " +yShift)
               while (yShift >= 1) {
-                blockList[yShift] = blockList[yShift-1];
+                var blockListToShift = blockList[yShift -1];
+                blockList[yShift] = blockListToShift;
+                console.log(blockListToShift)
                 for (j in blockList[yShift]) {
                   blockList[yShift][j].moveDown(1);
                 }
                 yShift--;
               }
+              blockList[0] = [];
+              console.log(JSON.stringify(blockList));
             }
           }
         }

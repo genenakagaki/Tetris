@@ -54,7 +54,6 @@ function Block(xParam, yParam, gameWidthParam, gameHeightParam, colorParam) {
   };
 
   this.isAtTop = function(block) {
-    console.log("x: "+x+" y: "+y)
     return y <= 0;
   }
 

@@ -136,7 +136,6 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   };
 
   this.moveDown = function(dy) {
-    console.log('movedown')
     if (!colliding) {
       y += dy;
       
@@ -190,7 +189,6 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   }
 
   this.turnLeft = function() {
-    console.log('turnLeft');
     swapWidthHeight();
     if (position > 0) {
       position --;
@@ -217,8 +215,6 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
   };
 
   this.turnRight = function() {
-    console.log('turnRight');
-
     swapWidthHeight();
     if (position < 3) {
       position++;
@@ -249,12 +245,10 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
 
     // check if there is a block under the shape
     for (i in blockList) {
-      console.log("blockList: " + blockList[i].getX() + "," + blockList[i].getY());
       for (row in gameBlockList) {
         for (j in gameBlockList[row]) {
           // console.log("row: " + gameBlockList[row][j].getX() + "," + gameBlockList[row][j].getY());
           if (blockList[i].isOverlapping(gameBlockList[row][j])) {
-            console.log('overlapping');
             return true;
           }
         }
@@ -271,7 +265,6 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
         // console.log(gameBlockList[row]);
         for (j in gameBlockList[row]) {
           if (blockList[bottomBlockIndexList[i]].bottomIsColliding(gameBlockList[row][j])) {
-            console.log('bottom colliding');
             return true;
           }
         }
@@ -289,8 +282,6 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
       for (row in gameBlockList) {
         for (j in gameBlockList[row]) {
           if (blockList[leftBlockIndexList[i]].leftIsColliding(gameBlockList[row][j])) {
-            console.log('left colliding');
-
             return true;
           }
         }
@@ -305,7 +296,6 @@ function Shape(shapeModel, xParam, yParam, gameWidthParam, gameHeightParam, game
       for (row in gameBlockList) {
         for (j in gameBlockList[row]) {
           if (blockList[rightBlockIndexList[i]].rightIsColliding(gameBlockList[row][j])) {
-            console.log('right colliding');
             
             return true;
           }
