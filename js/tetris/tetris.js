@@ -183,7 +183,7 @@ function Tetris() {
   // --------------------------------------------------------------------------------
   //   Mouse Listener
   // --------------------------------------------------------------------------------
-  canvas.addEventListener('mousemove', function() {
+  canvas.addEventListener('mousemove', function(event) {
     if (paused) {
       var xMouse = event.pageX - canvas.offsetLeft;
       var yMouse = event.pageY - canvas.offsetTop;
@@ -229,7 +229,7 @@ function Tetris() {
     }
   }, false);
 
-  canvas.addEventListener('click', function() {
+  canvas.addEventListener('click', function(event) {
     if (paused) {
       var xMouse = event.pageX - canvas.offsetLeft;
       var yMouse = event.pageY - canvas.offsetTop;
